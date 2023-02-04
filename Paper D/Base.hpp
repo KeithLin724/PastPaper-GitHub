@@ -80,21 +80,18 @@ namespace Tools {
 		}
 
 		inline void addGraph(const Graph::Array2D_INT& mappingGraph) {
-			this->__graphArray.push_back({ { mappingGraph,{0,0} } ,false });
+			this->__graphArray.push_back({ mappingGraph,{0,0} });
 		}
 		// using AND() to find the graph can put
 
 		inline Graph popGraph(const size_t& index) {
-			std::pair<Graph, bool> findItemInGraphArray;
+			Graph popItem;
 			try {
-				findItemInGraphArray = this->__graphArray.at(index);
+				popItem = this->__graphArray.at(index);
 			}
 			catch (const std::exception& e) {
 				throw std::invalid_argument("popGraph : index out of range");
 			}
-
-			Graph popItem = findItemInGraphArray.first;
-			findItemInGraphArray.second = false;
 
 			auto findInMapItr = this->__baseGraph.find(index);
 
@@ -128,7 +125,7 @@ namespace Tools {
 	public:
 		// check the graph have out of range // using index 
 		inline bool outOfRange(const size_t& index) {
-			return this->__outOfRange(this->__graphArray.at(index).first);
+			return this->__outOfRange(this->__graphArray.at(index));
 		}
 
 		// return is it insert success 
@@ -137,8 +134,7 @@ namespace Tools {
 				return false;
 			}
 
-			auto& findGraphData = this->__graphArray.at(index);
-			auto& findGraph = findGraphData.first;
+			auto& findGraph = this->__graphArray.at(index);
 
 			if (this->outOfRange(index) ||
 				Base::__canMergeTogether(findGraph.getBaseGraphData(), this->getBaseGraphData()) == false) {
@@ -147,7 +143,6 @@ namespace Tools {
 			}
 
 			this->__baseGraph.insert({ index , findGraph });
-			findGraphData.second = true;
 
 			this->refreshTotalMappingGraph();
 			return true;
@@ -204,13 +199,13 @@ namespace Tools {
 				Base::__canMergeTogether(newGraph.getBaseGraphData(), this->getBaseGraphData()) == false) {
 
 				// put back 
-				this->__graphArray[index] = { popItem , true };
+				this->__graphArray[index] = popItem;
 				this->__baseGraph.insert({ index , popItem });
 				this->refreshTotalMappingGraph();
 				return false;
 			}
 
-			this->__graphArray[index] = { newGraph , true };
+			this->__graphArray[index] = newGraph;
 			this->__baseGraph.insert({ index , newGraph });
 			this->refreshTotalMappingGraph();
 			return true;
@@ -221,7 +216,7 @@ namespace Tools {
 
 		// first is index , second is graph 
 		std::unordered_map<int32_t, Graph> __baseGraph;
-		std::vector<std::pair<Graph, bool>> __graphArray;
+		std::vector<Graph> __graphArray;
 
 		// total point set is all point in the set 
 		std::vector<std::string> __totalPointSet;
